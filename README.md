@@ -2,13 +2,13 @@
 
 ## 项目介绍
 
-这是一个用于 OrcaSlicer 的 G-code 后处理脚本，用于优化 3D 打印 G-code 文件。
+这是一个用于 OrcaSlicer 的 G-code 后处理脚本，用于SC12060的接续打印。
 
 ### 主要功能
 
-1. **清理初始化代码**：从 `EXECUTABLE_BLOCK_START` 到首个 `LAYER_CHANGE` 之间，移除 G28 和 G1 指令
-2. **删减打印内容**：找到 PAUSE 指令前的最近一个 LAYER_CHANGE，删除中间所有内容
-3. **移除暂停指令**：删除 PAUSE 指令，保留其余打印代码
+1. **COM8端口错误续接**：出现com8端口错误时，记录打印高度并在OrcaSlicer中使用脚本生成后续gcode;
+2. **断料检测失效出现空打时续接**：量出已打印高度，使用脚本；
+3. **出现停电等意外情况时续接**：量出已打印高度，使用脚本；
 
 ## 使用方法
 
@@ -20,7 +20,8 @@
    ```
    d:\Users\shucai\Desktop\sc12060_continue\target\release\sc12060_continue.exe
    ```
-4. 点击导出 G-code，脚本会自动处理
+4.设置暂停点;
+5. 点击导出 G-code，脚本会自动处理
 
 ### 方法二：单独运行
 
@@ -56,8 +57,9 @@ cargo build --release
 
 ## 要求
 
-- Windows 操作系统
+- Windows 、Mac、Linux 操作系统均可
 - OrcaSlicer 2.x（如果用于后处理）
+* Rust编译工具链（官网下载安装即可）
 
 ## 工作原理
 
