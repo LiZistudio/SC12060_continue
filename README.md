@@ -1,10 +1,10 @@
-# OrcaSlicer SC12060续接 G-code 后处理脚本
+# OrcaSlicer SC12060续接 G-code 后处理插件
 ![sc12060_continue](https://ts1.tc.mm.bing.net/th/id/R-C.1224123370b7b0d499cd9367bd37caa6?rik=o0F76fFKkmV75Q&riu=http%3a%2f%2forcaslicer.cn%2fpublic%2fdefault%2fdefault%2fimg%2flogo.png&ehk=mUIVv6vjZKO1RqiOz7IR%2fQUChtbO664YPmhUWAiRSuc%3d&risl=&pid=ImgRaw&r=0)
 ![sc12060](image.png)
 ![sc12060_continue](https://www.techug.com/wordpress/wp-content/uploads/2024/09/2-1024x576.png-1000x563.webp)
 ## 项目介绍
 
-这是一个用于 OrcaSlicer 的 G-code 后处理脚本，用于SC12060的接续打印。
+这是一个OrcaSlicer的G-code后处理插件，用于SC12060的接续打印。
 
 ### 主要功能
 
