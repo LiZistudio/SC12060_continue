@@ -64,31 +64,6 @@ fn is_any_type(line: &str) -> bool {
     line.trim_start().starts_with(";TYPE:")
 }
 
-#[allow(dead_code)]
-fn is_support(line: &str) -> bool {
-    is_type_line(line, "Support")
-}
-
-#[allow(dead_code)]
-fn is_outer_wall(line: &str) -> bool {
-    is_type_line(line, "Outer wall")
-}
-
-#[allow(dead_code)]
-fn is_inner_wall(line: &str) -> bool {
-    is_type_line(line, "Inner wall")
-}
-
-#[allow(dead_code)]
-fn internal_solid_infill(line: &str) -> bool {
-    is_type_line(line, "Internal solid infill")
-}
-
-#[allow(dead_code)]
-fn sparse_infill(line: &str) -> bool {
-    is_type_line(line, "Sparse infill")
-}
-
 fn process_gcode_file<P>(file_path: P, block_type: Option<BlockType>) -> std::io::Result<()>
 where
     P: AsRef<Path>,
@@ -123,7 +98,7 @@ where
 
     if pause_line.is_none() {
         println!(
-            "抱歉未找到暂停指令(PAUSE/M25/CONTINUE/continue/接续/继续)在 {} 中",
+            "抱歉未找到暂停指令(PAUSE/M601/CONTINUE/continue/接续/继续)在 {} 中",
             file_path.as_ref().display()
         );
         return Ok(());
@@ -192,11 +167,20 @@ where
             }
         }
 
-        let matching_pos = type_indices
-            .iter()
-            .position(|&i| is_type_line(&lines[i], target_type));
+        if type_indices.is_empty() {
+            println!("  - 警告: 在 PAUSE 所在层未找到任何 TYPE 块，仅移除 PAUSE");
+            for i in (last_lc_idx + 1)..layer_end_idx {
+                if i == pause_idx {
+                    continue;
+                }
+                output.push(lines[i].clone());
+            }
+        } else {
+            let matching_pos = type_indices
+                .iter()
+                .position(|&i| is_type_line(&lines[i], target_type));
 
-        if let Some(match_pos) = matching_pos {
+            if let Some(match_pos) = matching_pos {
             let remove_start = type_indices[0];
             let remove_end = if match_pos + 1 < type_indices.len() {
                 type_indices[match_pos + 1]
@@ -204,12 +188,20 @@ where
                 layer_end_idx
             };
 
+            let start_type_name = lines[type_indices[0]]
+                .trim_start()
+                .strip_prefix(";TYPE:")
+                .unwrap_or("unknown");
+            let end_type_name = lines[type_indices[match_pos]]
+                .trim_start()
+                .strip_prefix(";TYPE:")
+                .unwrap_or("unknown");
             println!(
                 "  - 删除 TYPE 块: 从第 {} 个 TYPE ({}) 到第 {} 个 TYPE ({})",
                 type_indices[0] + 1,
-                bt.type_name(),
+                start_type_name,
                 type_indices[match_pos] + 1,
-                bt.type_name()
+                end_type_name
             );
 
             for i in (last_lc_idx + 1)..layer_end_idx {
@@ -232,6 +224,7 @@ where
                 }
                 output.push(lines[i].clone());
             }
+        }
         }
     } else {
         for i in (last_lc_idx + 1)..pause_idx {
@@ -263,7 +256,7 @@ fn main() {
             "使用方法: {} <G代码文件路径> [--支撑|--外墙|--内墙|--实心填充|--稀疏填充]",
             args[0]
         );
-        eprintln!("         英文别名: [--Support|--OuterWall|--InnerWall|--SolidInfill|--SparseInfill]");
+        eprintln!("英文别名: [--Support|--OuterWall|--InnerWall|--SolidInfill|--SparseInfill]");
         eprintln!("在 Orca Slicer 中设置后处理脚本: 其他选项 > 后处理脚本 中添加此脚本");
         std::process::exit(1);
     }
